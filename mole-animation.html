@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Mole, Animated</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f7f8fc;--fg:#1c2033;--muted:#5d647d;--card:#fff;--line:#dfe3f0;
+--h:#2f7df6;--c:#4b5563;--n:#16a36a;--hot:#f2557a;--gold:#f5a524;--vio:#8b5cf6;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141f;--fg:#eef0fa;--muted:#a3a9c4;--card:#1c2030;--line:#2f354d;
+--h:#6aa6ff;--c:#aab2c5;--n:#3dd598;--hot:#ff7a9c;--gold:#ffbe4d;--vio:#a78bfa;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141f;--fg:#eef0fa;--muted:#a3a9c4;--card:#1c2030;--line:#2f354d;
+--h:#6aa6ff;--c:#aab2c5;--n:#3dd598;--hot:#ff7a9c;--gold:#ffbe4d;--vio:#a78bfa;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px}
+.dots{display:flex;gap:8px;margin-bottom:14px}
+.dots button{flex:1;height:8px;border:0;border-radius:6px;background:var(--line);cursor:pointer;padding:0}
+.dots button.on{background:var(--vio)}
+.dots button.done{background:var(--n)}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;min-height:380px}
+.stage h2{margin:0 0 6px;font-size:1.2rem}
+.cap{color:var(--muted);margin:0 0 16px}
+.nav{display:flex;gap:10px;margin-top:14px;justify-content:space-between}
+.nav button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--vio);color:#fff}
+.nav button.ghost{background:var(--line);color:var(--fg)}
+.nav button:disabled{opacity:.4;cursor:default}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+.box{border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.big{background:color-mix(in srgb,var(--n) 14%,transparent);border:1px solid var(--n)}
+.small{background:color-mix(in srgb,var(--hot) 14%,transparent);border:1px solid var(--hot)}
+.lab{font-weight:700;font-size:1.1rem}
+.big .lab{color:var(--n)}.small .lab{color:var(--hot)}
+.atoms{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0}
+.p{width:44px;height:44px;border-radius:50%;background:var(--c);opacity:0;transform:scale(0);transition:all .5s cubic-bezier(.3,1.6,.5,1);display:grid;place-items:center;color:#fff;font-size:.7rem;font-weight:700}
+.p.in{opacity:1;transform:scale(1)}
+.p.hl{background:var(--gold);color:#222;animation:pulse 1s infinite alternate}
+@keyframes pulse{to{transform:scale(1.25);box-shadow:0 0 18px var(--gold)}}
+.callout{text-align:center;font-size:1.05rem;opacity:0;transition:opacity .6s}
+.callout.in{opacity:1}
+.eq{background:var(--bg);border-radius:10px;padding:8px 12px;text-align:center;margin:8px 0}
+.track{height:26px;background:var(--line);border-radius:14px;overflow:hidden;margin:10px 0}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--h),var(--vio),var(--hot));transition:width 3s ease-out}
+.num{font-size:2rem;font-weight:800;text-align:center;color:var(--vio)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.card{border-radius:14px;padding:14px;border:2px solid var(--col);opacity:0;transform:translateY(20px);transition:all .6s}
+.card.in{opacity:1;transform:none}
+.card h3{margin:0 0 6px;color:var(--col)}
+.card .r{font-size:1.5rem;font-weight:800;color:var(--col);margin-top:6px}
+.card small{display:block;color:var(--muted)}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(-16px);transition:all .6s}
+.row.in{opacity:1;transform:none}
+.row .t{min-width:96px;font-weight:700}
+.mini{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:4px}
+.stream{overflow:hidden;white-space:nowrap;flex:1;mask-image:linear-gradient(90deg,#000 60%,transparent)}
+.stream span{display:inline-block;animation:slide 6s linear infinite}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧪 The Mole, Animated</h1>
+  <p class="sub">Press Next and watch each idea build up.</p>
+  <div class="dots" id="dots"></div>
+  <div class="stage" id="stage"></div>
+  <div class="nav">
+    <button class="ghost" id="back">← Back</button>
+    <button class="ghost" id="replay">↻ Replay</button>
+    <button id="next">Next →</button>
+  </div>
+</div>
+<script>
+var stage=document.getElementById('stage'),dotsEl=document.getElementById('dots'),T=[],cur=0;
+function later(f,ms){T.push(setTimeout(f,ms))}
+function every(f,ms){T.push(setInterval(f,ms))}
+function stop(){T.forEach(function(t){clearTimeout(t);clearInterval(t)});T=[]}
+function count(el,to,dec,ms){var s=Date.now();every(function(){var k=Math.min(1,(Date.now()-s)/ms);el.textContent=(to*k).toFixed(dec)},40)}
+function $(q){return stage.querySelector(q)}
+function $$(q){return stage.querySelectorAll(q)}
+
+var S=[
+/* 1: scientific notation */
+{h:'<h2>1 · Huge and tiny numbers</h2><p class="cap">Atoms are so small that we need a shorthand. Watch the zeros pile up.</p>'+
+ '<div class="box big"><div class="lab">10<sup id="e1">0</sup> = big</div><div class="mono" id="z1">1</div></div>'+
+ '<div class="box small"><div class="lab">10<sup id="e2">0</sup> = tiny</div><div class="mono" id="z2">1</div></div>'+
+ '<p class="cap" id="n1">🟢 Positive exponent: move the decimal right. 🔴 Negative exponent: move it left.</p>',
+ run:function(){var n=0;every(function(){if(n>=24)return;n++;
+  $('#e1').textContent=n;$('#e2').textContent='−'+n;
+  $('#z1').textContent='1'+'0'.repeat(n);
+  $('#z2').textContent='0.'+'0'.repeat(n-1)+'1';
+  if(n===23)$('#n1').innerHTML='🟢 6.02 × 10<sup>23</sup> is a 24-digit number. 🔴 1.66 × 10<sup>−24</sup> g is a tiny mass.'},230)}},
+
+/* 2: amu */
+{h:'<h2>2 · Where does 1.66 × 10<sup>−24</sup> g come from?</h2><p class="cap">Take one carbon-12 atom and cut it into 12 equal pieces.</p>'+
+ '<div class="callout" id="c1">One carbon-12 atom ≈ <b>1.99 × 10<sup>−23</sup> g</b></div>'+
+ '<div class="atoms" id="at"></div>'+
+ '<div class="callout" id="c2">1 piece = <b>1 amu</b> = 1.99 × 10<sup>−23</sup> ÷ 12 ≈ <b style="color:var(--gold)">1.66 × 10<sup>−24</sup> g</b></div>',
+ run:function(){var a=$('#at'),i;for(i=0;i<12;i++){var d=document.createElement('div');d.className='p';d.textContent='p';a.appendChild(d)}
+  later(function(){$('#c1').classList.add('in')},200);
+  $$('.p').forEach(function(p,k){later(function(){p.classList.add('in')},700+k*160)});
+  later(function(){$$('.p')[0].classList.add('hl');$('#c2').classList.add('in')},700+12*160+400)}},
+
+/* 3: reciprocal */
+{h:'<h2>3 · Where does 6.02 × 10<sup>23</sup> come from?</h2><p class="cap">How many 1.66 × 10<sup>−24</sup> g pieces are needed to make 1 gram?</p>'+
+ '<div class="eq mono">x = 1 g ÷ 1.66 × 10<sup>−24</sup> g</div>'+
+ '<div class="track"><div class="fill" id="f"></div></div>'+
+ '<div class="num"><span id="v">0.00</span> × 10<sup>23</sup></div>'+
+ '<p class="cap" style="text-align:center">pieces (amu) to fill <b>1 gram</b> ⚖️</p>',
+ run:function(){later(function(){$('#f').style.width='100%'},100);count($('#v'),6.022,3,3000)}},
+
+/* 4: elements */
+{h:'<h2>4 · Try it on three elements</h2><p class="cap">Weigh “mass number” grams of each atom and count how many atoms that is.</p>'+
+ '<div class="grid">'+
+ [['H',1,'1.66 × 10<sup>−24</sup>',1,'6.02','var(--h)'],['C',12,'1.99 × 10<sup>−23</sup>',12,'6.03','var(--c)'],['N',14,'2.32 × 10<sup>−23</sup>',14,'6.03','var(--n)']].map(function(e){
+  return '<div class="card" style="--col:'+e[5]+'"><h3>'+e[0]+' · mass number '+e[1]+'</h3><small>1 atom = '+e[1]+' × 1.66 × 10<sup>−24</sup></small><small>= '+e[2]+' g</small><small>Weigh <b>'+e[3]+' g</b>, so x = '+e[3]+' ÷ '+e[2]+'</small><div class="r"><span class="cv" data-to="'+e[4]+'">0.00</span> × 10<sup>23</sup></div></div>'}).join('')+
+ '</div><p class="cap callout" id="c4" style="margin-top:14px">🎯 Same count every time. Small differences are rounding: with 1.6605 × 10<sup>−24</sup> every element gives <b>6.022 × 10<sup>23</sup></b>.</p>',
+ run:function(){$$('.card').forEach(function(c,k){later(function(){c.classList.add('in');var s=c.querySelector('.cv');count(s,parseFloat(s.dataset.to),2,1500)},300+k*1400)});
+  later(function(){$('#c4').classList.add('in')},300+3*1400+800)}},
+
+/* 5: mole */
+{h:'<h2>5 · So what is a mole?</h2><p class="cap">A mole is just a name for a very big count, like “dozen”.</p>'+
+ '<div class="row"><div class="t">1 pair</div><div><span class="mini" style="background:var(--h)"></span><span class="mini" style="background:var(--h)"></span> = 2</div></div>'+
+ '<div class="row"><div class="t">1 dozen</div><div>'+'<span class="mini" style="background:var(--gold)"></span>'.repeat(12)+' = 12</div></div>'+
+ '<div class="row"><div class="t" style="color:var(--hot)">1 mole</div><div class="stream"><span>'+'<span class="mini" style="background:var(--hot)"></span>'.repeat(60)+'</span></div><div class="mono">6.022 × 10<sup>23</sup></div></div>'+
+ '<div class="callout" id="c5" style="margin-top:16px;text-align:left">✅ <b>1 mole of H = 1 g, C = 12 g, N = 14 g.</b><br>Atomic mass in amu equals molar mass in g/mol, so a balance lets us count atoms. ⚖️<br>The number 6.022 × 10<sup>23</sup> is the <b>Avogadro constant</b>.</div>',
+ run:function(){$$('.row').forEach(function(r,k){later(function(){r.classList.add('in')},300+k*900)});later(function(){$('#c5').classList.add('in')},3300)}}
+];
+
+S.forEach(function(_,k){var b=document.createElement('button');b.setAttribute('aria-label','Step '+(k+1));b.onclick=function(){go(k)};dotsEl.appendChild(b)});
+function go(k){stop();cur=k;stage.innerHTML=S[k].h;S[k].run();
+  [].forEach.call(dotsEl.children,function(b,j){b.className=j===k?'on':(j<k?'done':'')});
+  document.getElementById('back').disabled=k===0;
+  var nx=document.getElementById('next');nx.disabled=k===S.length-1;nx.textContent=k===S.length-2?'Finish →':'Next →'}
+document.getElementById('back').onclick=function(){go(cur-1)};
+document.getElementById('next').onclick=function(){go(cur+1)};
+document.getElementById('replay').onclick=function(){go(cur)};
+go(0);
+</script>
+</body>
+</html>
